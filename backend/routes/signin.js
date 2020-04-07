@@ -22,11 +22,10 @@ router.post('/',function(req,res)
         
         cursor.then(
             function(user) {
-                
+                console.log(user);
                 if(user)
                 {
-                    
-                    bcrypt.compare(req.body.password, user.password, function (err, result)
+                     bcrypt.compare(req.body.password, user.password, function (err, result)
                     {
                         //Username + Password Matches
                         if(result)

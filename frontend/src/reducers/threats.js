@@ -1,27 +1,21 @@
 
 const initialStore = {
     link : "",
-    threatlinks : [],
+    allThreats : [],
+    displayThreats : [],
     id : 0,
-    el : 0
+    el : 0,
+    searchErrorMsg : null,
+    searchError : false
 }
 
 const threatsReducer = (state = initialStore,action) => {
     
     if(action.type === "threatsummary"){
-        var link = "";
-        switch(action.payload)
-        {
-            case 1 : link = state.threatlinks[0]; break;
-            case 2 : link = state.threatlinks[1]; break;
-            case 3 : link = state.threatlinks[2]; break;
-            case 4 : link = state.threatlinks[3]; break;
-            case 5 : link = state.threatlinks[4]; break;
-            case 6 : link = state.threatlinks[5]; break;
-            case 7 : link = state.threatlinks[6]; break;
-            case 8 : link = state.threatlinks[7]; break;
-
-        }
+      //  console.log(action.payload);
+        //console.log(state.allThreats);
+        //console.log(state.allThreats[action.payload]);
+        var link = state.allThreats[action.payload];
         return {
             ...state,
             link : link,
@@ -31,13 +25,63 @@ const threatsReducer = (state = initialStore,action) => {
     } 
       
     if(action.type === "threats"){
-        console.log(action.payload);
+       // console.log(action.payload);
+        var links = [];
+        for(var i = 0; i<action.payload.length; i++)
+        {   
+            links.push(action.payload[i].link);
+         //   console.log(action.payload[i]);
+        }
+        
         return {
             ...state,
-            threatlinks : action.payload,
+            allThreats : action.payload,
+            displayThreats : action.payload
         }
     } 
+    if(action.type === "search")
+    {
+        console.log("search action");
+        console.log(action.payload);
+        console.log(state.allThreats);
 
+        var searchResults =[];
+        for(var i = 0; i<state.allThreats.length; i++)
+        {
+            if(state.allThreats[i][action.payload.checked] === action.payload.query)
+                searchResults.push(state.allThreats[i]);
+        }
+        return {
+            ...state,
+            displayThreats : searchResults
+        }
+    }
+    if(action.type === "resetSearch")
+    {
+        console.log("reset action");
+        console.log(state.allThreats);
+        return {
+            ...state,
+            displayThreats : state.allThreats,
+            searchErrorMsg : null,
+            searchError : false
+
+        }
+    }
+    if(action.type === "searchError")
+    {
+        var msg;
+        if(action.payload.type === "radio")
+            msg = "Please select a radio button to search......................................";
+        else
+            msg = "Please enter a search query....................................................";
+
+      return {
+          ...state,
+          searchErrorMsg : msg,
+          searchError : true
+      }  
+    }
     if(action.type === "updateel"){
         console.log(action.payload);
         return {
@@ -45,6 +89,7 @@ const threatsReducer = (state = initialStore,action) => {
             el : state.el+1,
         }
     }
+   
     return state;
 }
 
@@ -53,7 +98,7 @@ export default threatsReducer;
 /*
 const initialStore = {
     link : "",
-    threatlinks : {},
+    allThreats : {},
     id : 0,
     el : 0
 }
@@ -64,14 +109,14 @@ const threatsReducer = (state = initialStore,action) => {
         var link = "";
         switch(action.payload)
         {
-            case 1 : link = state.threatlinks.threat1; break;
-            case 2 : link = state.threatlinks.threat2; break;
-            case 3 : link = state.threatlinks.threat3; break;
-            case 4 : link = state.threatlinks.threat4; break;
-            case 5 : link = state.threatlinks.threat5; break;
-            case 6 : link = state.threatlinks.threat6; break;
-            case 7 : link = state.threatlinks.threat7; break;
-            case 8 : link = state.threatlinks.threat8; break;
+            case 1 : link = state.allThreats.threat1; break;
+            case 2 : link = state.allThreats.threat2; break;
+            case 3 : link = state.allThreats.threat3; break;
+            case 4 : link = state.allThreats.threat4; break;
+            case 5 : link = state.allThreats.threat5; break;
+            case 6 : link = state.allThreats.threat6; break;
+            case 7 : link = state.allThreats.threat7; break;
+            case 8 : link = state.allThreats.threat8; break;
 
         }
         return {
@@ -86,7 +131,7 @@ const threatsReducer = (state = initialStore,action) => {
         console.log(action.payload);
         return {
             ...state,
-            threatlinks : action.payload,
+            allThreats : action.payload,
         }
     } 
 

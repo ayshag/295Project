@@ -1,15 +1,8 @@
              
 import React, { Component } from "react";
-import { Field, reduxForm } from "redux-form";
-import { connect } from "react-redux";
+
 import '../../App.css';
 
-import Button from '@material-ui/core/Button'
-import {signupForm} from "../../styles/signupForm";
-import {container} from "../../styles/container";
-import * as inputField from  "../../styles/inputField";
-import {button} from "../../styles/button";
-import emailjs from 'emailjs-com';
 import moment from 'moment';
 class Email extends Component {
 

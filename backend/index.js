@@ -43,6 +43,7 @@ var livesurveillance = require('./routes/livesurveillance');
 var threatsummary = require('./routes/threatsummary');
 var allthreats = require('./routes/allthreats');
 var updatepassword = require('./routes/updatepassword');
+var threatdetails = require('./routes/threatdetails');
 
 app.use('/signin', signin);
 app.use('/signup', signup);
@@ -50,6 +51,7 @@ app.use('/live-surveillance', livesurveillance);
 app.use('/threat-summary', threatsummary);
 app.use('/all-threats', allthreats);
 app.use('/updatepassword', updatepassword);
+app.use('/threat-details', threatdetails);
 
 var params = {
     Protocol: 'http', /* required */
@@ -81,7 +83,9 @@ sns.subscribe(params, function(error, data) {
       if(message.Type === 'Notification')
        {
           var msg = JSON.parse(message.Message);
-          var linkbase = "https://295-videos.s3.us-east-2.amazonaws.com/" + msg.Records[0].s3.object.key;
+          //var linkbase = "https://295-videos.s3.us-east-2.amazonaws.com/" + msg.Records[0].s3.object.key;
+          var linkbase = "https://295-videos.s3.us-east-2.amazonaws.com/icon-1.png";
+          
           console.log('should emit' + linkbase);
           socket.emit('update',{
                             link  : linkbase
@@ -94,3 +98,48 @@ sns.subscribe(params, function(error, data) {
     });
   });
 
+  var AWS = require('./aws-config/aws');
+
+  var options = {
+    accessKeyId: AWS.config.accessKeyId,
+    secretAccessKey : AWS.config.secretAccessKey,
+    sessionToken: AWS.config.sessionToken,
+    region: AWS.config.region,
+    endpoint: AWS.config.endpoint
+  }
+
+  var kinesisVideo = new AWS.KinesisVideo(options);
+  var kinesisVideoArchivedContent = new AWS.KinesisVideoArchivedMedia(options);
+
+  kinesisVideo.getDataEndpoint({
+      StreamName: "test-stream",
+      APIName: "GET_HLS_STREAMING_SESSION_URL"
+  }, function (err, response)
+  {
+      if(err)
+      {
+          console.log(err);
+      }
+      console.log("Data endpoint: " + response.DataEndpoint);
+      kinesisVideoArchivedContent.endpoint = new AWS.Endpoint(response.DataEndpoint);
+  });
+
+  kinesisVideoArchivedContent.getHLSStreamingSessionURL({
+      StreamName: "test-stream",
+      PlaybackMode: "LIVE",
+      HLSFragmentSelector:{
+          //FragmentSelectorType :,
+            TimestampRange: undefined
+      },
+      //ContainerFormat: ,
+      //DiscontinuityMode: 
+      //DisplayFragmentTimestamp: ,
+      //MaxMediaPlaylistFragmentResults:
+      //Expires   
+  }, function (err, response){
+      if(err)
+        return console.log(err);
+      console.log('HLS Streaming Session URL: ' + response.HLSStreamingSessionURL);  
+  })
+
+  

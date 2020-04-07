@@ -37,6 +37,7 @@ class App extends Component {
             <Route path='/search-threats' component={SearchThreats} />
             <Route path='/email' component={Email} />
             <Route path='/settings' component={Settings} />
+            <Redirect from='/' to= '/signin'></Redirect>
             </Switch>
        </BrowserRouter>
      </Provider> 
