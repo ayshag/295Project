@@ -120,61 +120,62 @@ mongo.connect(url, function(err, client) {
                 // Create sendEmail params 
                 // var recepients = ["kruti.thukral@sjsu.edu", "vishwanath.manvi@sjsu.edu", "aysha.yusufgodil@sjsu.edu"];
                 var users = db.collection("user");
-                var myCursor = users.find({});
+                // var myCursor = users.find({});
+                var myCursor = users.find({"email":"kruti.thukral@sjsu.edu"});
                 var email_body = "<p> Caution! A suspicious activity was detected</p><p>Date:" + req.Date + "</p>\
                 <p>Location: " + req.Location + "</p>\
                 <p>Certainty: " + req.Certainty + "</p>\
                 <p>Image URL: " + req.Image + "</p>"
                 myCursor.forEach(element => {
-                    // var dest_email = element.email;
-                    // if  (dest_email) {
-                    //     var params = {
-                    //         Destination: {
-                    //             /* required */
-                    //             ToAddresses: [dest_email]
-                    //         },
-                    //         Message: {
-                    //             /* required */
-                    //             Body: {
-                    //                 /* required */
-                    //                 Html: {
-                    //                     Charset: "UTF-8",
-                    //                     Data: email_body
-                    //                 },
-                    //                 Text: {
-                    //                     Charset: "UTF-8",
-                    //                     Data: "this is an email notification from amazon ses"
-                    //                 }
-                    //             },
-                    //             Subject: {
-                    //                 Charset: 'UTF-8',
-                    //                 Data: 'Suspicious activity detected'
-                    //             }
-                    //         },
-                    //         Source: 'kruti.thukral@sjsu.edu',
-                    //         /* required */
-                    //         ReplyToAddresses: [
-                    //             'kruti.thukral@sjsu.edu',
-                    //             /* more items */
-                    //         ],
-                    //     };
+                    var dest_email = element.email;
+                    if  (dest_email) {
+                        var params = {
+                            Destination: {
+                                /* required */
+                                ToAddresses: [dest_email]
+                            },
+                            Message: {
+                                /* required */
+                                Body: {
+                                    /* required */
+                                    Html: {
+                                        Charset: "UTF-8",
+                                        Data: email_body
+                                    },
+                                    Text: {
+                                        Charset: "UTF-8",
+                                        Data: "this is an email notification from amazon ses"
+                                    }
+                                },
+                                Subject: {
+                                    Charset: 'UTF-8',
+                                    Data: 'Suspicious activity detected'
+                                }
+                            },
+                            Source: 'kruti.thukral@sjsu.edu',
+                            /* required */
+                            ReplyToAddresses: [
+                                'kruti.thukral@sjsu.edu',
+                                /* more items */
+                            ],
+                        };
 
-                    //     // Create the promise and SES service object
-                    //     var sendPromise = new AWS.SES({
-                    //         apiVersion: '2010-12-01'
-                    //     }).sendEmail(params).promise();
-                    //     console.log("Sending Email");
-                    //     // Handle promise's fulfilled/rejected states
-                    //     sendPromise.then(
-                    //         function(data) {
-                    //             console.log(data.MessageId);
-                    //             console.log("Email Sent successfully");
-                    //         }).catch(
-                    //         function(err) {
-                    //             console.error(err, err.stack);
-                    //             console.log("Email Sent successfully");
-                    //         });
-                    // }   
+                        // Create the promise and SES service object
+                        var sendPromise = new AWS.SES({
+                            apiVersion: '2010-12-01'
+                        }).sendEmail(params).promise();
+                        console.log("Sending Email");
+                        // Handle promise's fulfilled/rejected states
+                        sendPromise.then(
+                            function(data) {
+                                console.log(data.MessageId);
+                                console.log("Email Sent successfully");
+                            }).catch(
+                            function(err) {
+                                console.error(err, err.stack);
+                                console.log("Email Sent successfully");
+                            });
+                    }   
                     var mobile = element.mobile;
                     if (mobile) {
                         // send sms notification

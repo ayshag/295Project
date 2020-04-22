@@ -15,5 +15,8 @@
     "jsonschema": "^1.2.6",
     "mongodb": "^3.5.6",
     "twilio": "^3.42.2"
+  },
+  "engines": {
+    "node": "11.x"
   }
 }
