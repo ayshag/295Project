@@ -3,7 +3,7 @@ var awsIot = require('aws-iot-device-sdk');
 var AWS = require('aws-sdk');
 var mongodb = require("mongodb");
 var mongo = mongodb.MongoClient;
-var url = require("../backend/db/url");
+var url = "mongodb://295-user:295-pass@ds017862.mlab.com:17862/295db";
 // const sgMail = require('@sendgrid/mail');
 AWS.config.loadFromPath('./config.json');
 var Validator = require('jsonschema').Validator;
@@ -33,17 +33,18 @@ var device = awsIot.device({
 device
     .on('connect', function() {
         console.log('Connecting to MQTT IOT queue');
-        device.subscribe('$aws/things/deeplens_rdAW3I9xTfmHPrCydULALA/infer');
-        console.log('Subscribing to MQTT IOT queue');
-        device.publish('$aws/things/deeplens_rdAW3I9xTfmHPrCydULALA/infer',
-            JSON.stringify({
-                "Date": "04-12-2020",
-                "Device": "Camera_001",
-                "Image": "Image_url_001",
-                "Certainty": 0.80,
-                "Location": "MLK Library",
-                "isThreat": true
-            }));
+        console.log('Subscribing to MQTT IOT queue', process.env.MQTT_URL);
+        device.subscribe(process.env.MQTT_URL);
+        
+        // device.publish('$aws/things/deeplens_rdAW3I9xTfmHPrCydULALA/infer',
+        //     JSON.stringify({
+        //         "Date": "04-12-2020",
+        //         "Device": "Camera_001",
+        //         "Image": "Image_url_001",
+        //         "Certainty": 0.80,
+        //         "Location": "MLK Library",
+        //         "isThreat": true
+        //     }));
     });
 
 // Address, to be embedded on Person
@@ -120,8 +121,8 @@ mongo.connect(url, function(err, client) {
                 // Create sendEmail params 
                 // var recepients = ["kruti.thukral@sjsu.edu", "vishwanath.manvi@sjsu.edu", "aysha.yusufgodil@sjsu.edu"];
                 var users = db.collection("user");
-                // var myCursor = users.find({});
-                var myCursor = users.find({"email":"kruti.thukral@sjsu.edu"});
+                var myCursor = users.find({});
+                // var myCursor = users.find({"email":"kruti.thukral@sjsu.edu"});
                 var email_body = "<p> Caution! A suspicious activity was detected</p><p>Date:" + req.Date + "</p>\
                 <p>Location: " + req.Location + "</p>\
                 <p>Certainty: " + req.Certainty + "</p>\
@@ -189,53 +190,53 @@ mongo.connect(url, function(err, client) {
                             from: '+12058392440',
                             to: mobile
                         })
-                        .then(message => console.log(message.sid));
-                        // send sms notification
-                        // Create publish parameters
-                        // var sms_message = "Suspicious activity detected on " +  req.Date + " at " + req.Location + ". Go to the link for further details " +  req.Image;
-                        // var sms_params = {
-                        //     Message: sms_message, /* required */
-                        //     // PhoneNumber: mobile,
-                        //     TopicArn: 'arn:aws:sns:us-east-1:484762276025:threatalerts'    
-                        // };
+                        .then(message => console.log("SMS Sent successfully.Message id:" + message.sid));
+                //         // send sms notification
+                //         // Create publish parameters
+                //         // var sms_message = "Suspicious activity detected on " +  req.Date + " at " + req.Location + ". Go to the link for further details " +  req.Image;
+                //         // var sms_params = {
+                //         //     Message: sms_message, /* required */
+                //         //     // PhoneNumber: mobile,
+                //         //     TopicArn: 'arn:aws:sns:us-east-1:484762276025:threatalerts'    
+                //         // };
 
-                        // // Create promise and SNS service object
-                        // var publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(sms_params).promise();
+                //         // // Create promise and SNS service object
+                //         // var publishTextPromise = new AWS.SNS({apiVersion: '2010-03-31'}).publish(sms_params).promise();
 
-                        // // Handle promise's fulfilled/rejected states
-                        // publishTextPromise.then(
-                        // function(data) {
-                        //     console.log("SNS MessageID is " + data.MessageId);
-                        // }).catch(
-                        //     function(err) {
-                        //     console.error(err, err.stack);
-                        // });
+                //         // // Handle promise's fulfilled/rejected states
+                //         // publishTextPromise.then(
+                //         // function(data) {
+                //         //     console.log("SNS MessageID is " + data.MessageId);
+                //         // }).catch(
+                //         //     function(err) {
+                //         //     console.error(err, err.stack);
+                //         // });
 
-                        // var sns = new AWS.SNS();
-                        // var params = {
-                        //     Message: "Suspicious activity detected on " + req.Date + " at " + req.Location + ". Go to the link for further details " + req.Image,
-                        //     MessageStructure: 'string',
-                        //     PhoneNumber: mobile,
+                //         // var sns = new AWS.SNS();
+                //         // var params = {
+                //         //     Message: "Suspicious activity detected on " + req.Date + " at " + req.Location + ". Go to the link for further details " + req.Image,
+                //         //     MessageStructure: 'string',
+                //         //     PhoneNumber: mobile,
 
-                        //     Subject: 'MyApp'
-                        // };
+                //         //     Subject: 'MyApp'
+                //         // };
 
-                        // sns.setSMSAttributes({
-                        //         attributes: {
-                        //             DefaultSMSType: "Transactional"
-                        //         }
-                        //     },
-                        //     function(error) {
-                        //         if (error) {
-                        //             console.log(error);
-                        //         }
-                        //     }
-                        // );
+                //         // sns.setSMSAttributes({
+                //         //         attributes: {
+                //         //             DefaultSMSType: "Transactional"
+                //         //         }
+                //         //     },
+                //         //     function(error) {
+                //         //         if (error) {
+                //         //             console.log(error);
+                //         //         }
+                //         //     }
+                //         // );
 
-                        // sns.publish(params, function(err, data) {
-                        //     if (err) console.log(err, err.stack); // an error occurred
-                        //     else console.log(data); // successful response
-                        // });
+                //         // sns.publish(params, function(err, data) {
+                //         //     if (err) console.log(err, err.stack); // an error occurred
+                //         //     else console.log(data); // successful response
+                //         // });
 
                       
                     }
@@ -252,8 +253,8 @@ mongo.connect(url, function(err, client) {
 });
 const http = require('http');
 
-const hostname = '127.0.0.1';
-const port = 3000;
+// const hostname = '127.0.0.1';
+const PORT = process.env.PORT || 5000;
 
 const server = http.createServer((req, res) => {
     res.statusCode = 200;
@@ -261,6 +262,6 @@ const server = http.createServer((req, res) => {
     res.end('Hello World');
 });
 
-server.listen(port, hostname, () => {
-    console.log(`Server running at http://${hostname}:${port}/`);
+server.listen(PORT, () => {
+    console.log(`Server running on ${PORT}/`);
 });
