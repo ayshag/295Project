@@ -4,50 +4,110 @@ import LeftDrawer from '../Drawer/Drawer';
 import * as videoStyles from  "../../styles/video";
 import axios from 'axios';
 import { connect } from "react-redux";
-import Timer from './Timer';
-import { SignalingClient } from 'amazon-kinesis-video-streams-webrtc';
 import backendURL from '../../backendUrl';
 import { Redirect } from "react-router-dom";
-
+import ReactHLS from 'react-hls';
+import Hls from "hls.js";
+import $ from "jquery";
+import AWS from "aws-sdk";
+import * as awsConfig from "../../aws-config/aws";
 
 class LiveSurveillance extends Component {
 
     constructor(props){
         super(props); 
-        if(this.props.allThreats.length == 0)
-             this.props.threats();
+        if(sessionStorage.getItem("user") == null || sessionStorage.getItem("user") == "null")
+       {
+           this.state = {
+                redirectVar :  <Redirect to= "/signin"/>
+           }
+       }
+       else{
+        
+           this.state = {
+               redirectVar :  null
+           }
+
+    
+       }
         
     }
-    componentDidMount(){
-        this.props.surveillance();
-       
-       // console.log("user : "  + sessionStorage.getItem("user"))
-       // if(sessionStorage.getItem("user") == null)
-         //   this.setState({redirectVar : <Redirect to= "/signin"/>})
-       
-    }
-    componentWillMount (){
-       
-    }
+  
     render() {
+        
         var date = (new Date().getMonth() + 1) + "/" + new Date().getDate() + "/" + new Date().getFullYear();
-        var location = "37.3352° N, 121.8811° W";
-        var city = "San Jose"
-        var camera = "A103";
+        var location = "MLK Library Main entrance, San Jose, CA";
+        var camera = "Camera001";
        
+        var streamName = 'threatStream';
+        var playbackMode = 'LIVE';
+
+        var options = {
+            accessKeyId: awsConfig.config.accessKeyId,
+            secretAccessKey: awsConfig.config.secretAccessKey,
+            sessionToken:  undefined,
+            region: awsConfig.config.region,
+            endpoint: undefined
+        }
+
+        var kinesisVideo = new AWS.KinesisVideo(options);
+        var kinesisVideoArchivedContent = new AWS.KinesisVideoArchivedMedia(options);
+        kinesisVideo.getDataEndpoint({
+            StreamName: streamName,
+            APIName: "GET_HLS_STREAMING_SESSION_URL"
+        }, function(err, response) {
+            if (err) {  
+                console.error(err);
+                return;
+             }
+            
+            kinesisVideoArchivedContent.endpoint = new AWS.Endpoint(response.DataEndpoint);
+
+          
+                kinesisVideoArchivedContent.getHLSStreamingSessionURL({
+                    StreamName: streamName,
+                    PlaybackMode: playbackMode,
+                    HLSFragmentSelector: {
+                        FragmentSelectorType: 'SERVER_TIMESTAMP',
+                        TimestampRange: playbackMode === "LIVE" ? undefined : {
+                            StartTimestamp: new Date($('#startTimestamp').val()),
+                            EndTimestamp: new Date($('#endTimestamp').val())
+                        }
+                    },
+                   
+                }, function(err, response) {
+                    if (err) { return console.error(err); }
+                    
+                        var playerElement = $('#hlsjs');
+                        playerElement.show();
+                        var player = new Hls();
+                      
+                        player.loadSource(response.HLSStreamingSessionURL);
+                        player.attachMedia(playerElement[0]);
+                        player.on(Hls.Events.MANIFEST_PARSED, function() {
+                            $('#hlsjs').play();
+                        });
+                    
+                });
+        
+        });
+
             return (
-            <div  style={videoStyles.background} >
+           <div>
+               {this.state.redirectVar}
+                 <LeftDrawer></LeftDrawer>
+                 <div style={videoStyles.videoDisplayContainer}  >
+                           <video style={videoStyles.videoDisplay} id="hlsjs"  controls autoPlay></video>
+
+                      </div> 
+                 <div  style={videoStyles.videoContainer}  >
+
+                 
+                   <div style = {videoStyles.liveVideoInfo}>{/* <Timer></Timer> */}<h5> Date: {date} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Location: {location}  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Camera: {camera}</h5></div>
+               
+               </div>
+          
                 
-                <div  style={videoStyles.videoContainer}  >
-                <LeftDrawer></LeftDrawer>
-                <div style={videoStyles.videoFrame}>
-                    <iframe style={videoStyles.video} src={''+this.props.link} width='100%;' height='500px'></iframe>
-                </div>
-                {/*   <iframe style={videoStyles.video} width="700px" height="400px" src="https://295-videos.s3.us-east-2.amazonaws.com/San-Jose-16th-Oct-2019.mp4"></iframe> */}
-                    <div style = {videoStyles.videoInfo}>{/* <Timer></Timer> */}<h5> Date: {date} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Location: {location} &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; City: {city}  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;  Camera: {camera}</h5></div>
-                
-                </div>
-    
             </div> 
 
             );
@@ -56,35 +116,5 @@ class LiveSurveillance extends Component {
 }
 
 
-const mapStateToProps = state =>{
-   
-    return {
-        link : state.surveillanceReducer.link,
-        allThreats : state.threatsReducer.allThreats,
-     }
-}
 
-const mapDispatchStateToProps = dispatch => {
-    
-    return {
-        surveillance : () => {
-            axios.get(backendURL + '/live-surveillance').then(response=>{
-                dispatch({type: "surveillance",payload : response.data})
-            })
-                    
-            
-        },
-        threats : () => {
-            axios.get(backendURL + '/all-threats').then(response=>{
-                console.log(response.data);
-              // const threatIds = response.data;
-              //  axios.post(backendURL + '/threat-details', response.data).then(result=>{
-              //          console.log(result);
-               // })
-                dispatch({type: "threats",payload : response.data})
-            }) 
-        },
-    }
-}
-
-export default (connect(mapStateToProps,mapDispatchStateToProps)(LiveSurveillance));  
+export default LiveSurveillance;  

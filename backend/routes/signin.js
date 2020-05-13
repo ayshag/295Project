@@ -6,13 +6,14 @@ var router = express.Router();
 var bcrypt = require('bcrypt-nodejs');
 router.post('/',function(req,res)
 {
-    console.log('Received request for signin');
-    console.log(req.body);
+
    
     client.connect(url, function (err, client) {
-    
         var db = client.db("295db");
         var collection = db.collection("user");
+        res.writeHead(200, {
+            'Content-Type': 'text/plain'
+        })
         
         var query = {
             "email": req.body.email
@@ -22,7 +23,6 @@ router.post('/',function(req,res)
         
         cursor.then(
             function(user) {
-                console.log(user);
                 if(user)
                 {
                      bcrypt.compare(req.body.password, user.password, function (err, result)
@@ -38,7 +38,6 @@ router.post('/',function(req,res)
                 else 
                 {
                     //User does not exist
-                  console.log("Fail: ", user);
                   res.end(JSON.stringify({"message" : "no-user"}));
                 }
             }, 

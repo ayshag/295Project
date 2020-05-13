@@ -37,7 +37,6 @@ export const shortLeftInput = {
     width:'400px',
     height: '25px',
     backgroundColor : "rgb(224, 224, 224)",
-    //paddingLeft : "700px",
     marginLeft : "300px",
     marginTop : "10px"
 

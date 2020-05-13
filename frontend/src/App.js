@@ -11,11 +11,11 @@ import SignUp from './components/Authentication/SignUp';
 import SignIn from './components/Authentication/SignIn';
 
 import LiveSurveillance from './components/LiveSurveillance/LiveSurveillance';
+import SurveillanceHistory from './components/SurveillanceHistory/SurveillanceHistory';
 
 import ThreatSummary from './components/ThreatSummary/ThreatSummary';
 import SearchThreats from './components/ThreatSummary/SearchThreats';
 import Settings from './components/Settings/Settings';
-import Email from './components/Notifications/Email';
 
 
 
@@ -25,7 +25,7 @@ const store = createStore(rootReducer, composePlugin(applyMiddleware(promise)));
 
 class App extends Component {
  render() {
- 
+  const rootPath = (sessionStorage.getItem("user") == null || sessionStorage.getItem("user") == "null") ? '/signin' : '/live-surveillance';
    return(
       <Provider store = {store}>
        <BrowserRouter>
@@ -33,11 +33,11 @@ class App extends Component {
             <Route path='/signup' component={SignUp} />
             <Route path='/signin' component={SignIn} />
             <Route path='/live-surveillance' component={LiveSurveillance} />
+            <Route path='/surveillance-history' component={SurveillanceHistory} />
             <Route path='/threat-summary' component={ThreatSummary} />
             <Route path='/search-threats' component={SearchThreats} />
-            <Route path='/email' component={Email} />
             <Route path='/settings' component={Settings} />
-            <Redirect from='/' to= '/signin'></Redirect>
+            <Redirect from='/' to= {rootPath}></Redirect>
             </Switch>
        </BrowserRouter>
      </Provider> 

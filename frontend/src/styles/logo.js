@@ -5,5 +5,4 @@ export const logo ={
     fontSize: "16px", 
     width:"250px", 
     marginLeft:"0px",
-//     marginTop: "5px"
 }

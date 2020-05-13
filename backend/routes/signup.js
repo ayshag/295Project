@@ -8,9 +8,7 @@ var salt = bcrypt.genSalt(5, function (err, salt) { return salt; });
 
 router.post('/',function(req,res)
 {
-    console.log('Received request for signup');
-    console.log(req.body);
-   
+
     client.connect(url, function (err, client) {
     
         var db = client.db("295db");
@@ -36,13 +34,12 @@ router.post('/',function(req,res)
                         "email": req.body.email,
                         "password" : password, 
                         "mobile" : req.body.mobile,
-                        "verified" : "false",
+                        "verified" : "true",
                         "org_id" : req.body.org
                     };
             
                     var cursorSave = collection.save(query);
                     cursorSave.then(function(response){
-                        console.log(response);
                         res.end(JSON.stringify({"message" : "created"}));
                     })
                 })

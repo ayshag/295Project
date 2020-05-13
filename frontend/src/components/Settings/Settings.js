@@ -19,15 +19,13 @@ class Settings extends Component {
             message : null
         }
         this.updatePassword = this.updatePassword.bind(this);
+      
               
     }
-    componentDidMount(){
-      
-    }
+  
 
     updatePassword = (e) => {
         e.preventDefault();
-        console.log(e.target);
         if(e.target.newpassword.value !== e.target.confirmpassword.value)
             this.setState({message : "Passwords Do Not Match. Please Try Again"});
         else
@@ -52,32 +50,19 @@ class Settings extends Component {
         return (
         <div  >
             <LeftDrawer></LeftDrawer>
-            <div>
-                <p style={styles.labelsOne}>
-                    Notification Settings
-                </p>
-                <form>
-                    <input type="checkbox" value="email-alert" id="email-alert" style={styles.checkbox}></input> 
-                    <label for="email-alert" style={styles.labelsTwo}>Send Email Alert</label>
-                        <p style={styles.labelsThree}>Primary Email: <input type="email" style={inputStyles.settingsInput} name="email" ></input> <Button style={buttonStyles.addButton} variant="contained">+</Button></p>
-                    <input type="checkbox" value="mobile-alert" id="mobile-alert" style={styles.checkbox}></input> 
-                    <label for="mobile-alert" style={styles.labelsTwo}>Send Mobile Alert</label>
-                        <p style={styles.labelsFour}>Primary Mobile: <input type="tel" style={inputStyles.settingsInput} name="mobile" ></input> <Button style={buttonStyles.addButton} variant="contained">+</Button></p>
-                <Button type="submit" style={buttonStyles.updateButton} variant="contained">UPDATE</Button>
-                </form>
-            </div>
+      
             <div>
                 <p style={styles.labelsOne}>
                     Account Settings
                 </p>
-                <p style={styles.labelsFive}>
+                <p style={styles.labelsTwo}>
                     Change Password
                 </p>
                 <form onSubmit={this.updatePassword}>
 
-                <p style={styles.labelsSix}> Confirm Old Password:  <input type="password" required name="oldpassword" style={inputStyles.settingsInput}></input></p>
-                <p style={styles.labelsSeven}> Enter New Password:  <input type="password" required name="newpassword" style={inputStyles.settingsInput} onChange= {()=>this.setState({message : null})}></input></p>
-                <p style={styles.labelsEight}> Confirm New Password:  <input type="password" required name="confirmpassword" style={inputStyles.settingsInput} onChange= {()=>this.setState({message : null})}></input></p>
+                <p style={styles.labelsThree}> Confirm Old Password:  <input type="password" required name="oldpassword" style={inputStyles.settingsInput}></input></p>
+                <p style={styles.labelsFour}> Enter New Password:  <input type="password" required name="newpassword" style={inputStyles.settingsInput} onChange= {()=>this.setState({message : null})}></input></p>
+                <p style={styles.labelsFive}> Confirm New Password:  <input type="password" required name="confirmpassword" style={inputStyles.settingsInput} onChange= {()=>this.setState({message : null})}></input></p>
                 <p  style={errorStyles.settingsError}>{this.state.message}</p>
                 <Button type="submit" style={buttonStyles.updateButton} variant="contained" >UPDATE</Button>
  
@@ -91,17 +76,5 @@ class Settings extends Component {
 }
 
 
-const mapStateToProps = state =>{
-   
-    return {
-        
-     }
-}
 
-const mapDispatchStateToProps = dispatch => {
-    return {
-       
-    }
-}
-
-export default (connect(mapStateToProps,mapDispatchStateToProps)(Settings));  
+export default Settings;  

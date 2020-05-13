@@ -4,8 +4,4 @@ export const signupForm = {
    marginBottom: '50px',
    display: 'inline-block',
    width:'400px',
-  
-   //padding: "15px",
-   //border : "solid" ,
-   //borderColor : "rgba(0,0,0,1 )"
 }

@@ -8,29 +8,19 @@ export const checkbox ={
     marginLeft : "300px",
     backgroundColor : "rgb(224, 224, 224)",
 }
-export const labelsTwo ={
-    marginLeft : "5px",
-}
-export const labelsThree={
-    marginLeft : "340px"
-}
 
-export const labelsFour={
-    marginLeft : "330px"
-}
-
-export const labelsFive={
+export const labelsTwo={
     marginLeft : "280px",
     color : "rgb(0, 56, 83)"
 }
 
-export const labelsSix={
+export const labelsThree={
     marginLeft : "280px",
 }
 
-export const labelsSeven={
+export const labelsFour={
     marginLeft : "295px",
 }
-export const labelsEight={
+export const labelsFive={
     marginLeft : "275px",
 }

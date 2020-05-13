@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "mocha"
   },
   "author": "",
   "license": "ISC",
@@ -12,10 +12,13 @@
     "aws2js": "^0.8.3",
     "bcrypt": "^4.0.0",
     "bcrypt-nodejs": "0.0.3",
+    "chai": "^4.2.0",
+    "chai-http": "^4.3.0",
     "cors": "^2.8.5",
     "express": "^4.17.1",
     "express-session": "^1.17.0",
     "fs": "0.0.1-security",
+    "mocha": "^7.1.1",
     "mongodb": "^3.5.2",
     "mongoose": "^5.8.10",
     "mqtt": "^3.0.0",

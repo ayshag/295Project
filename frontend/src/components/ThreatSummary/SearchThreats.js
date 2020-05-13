@@ -8,34 +8,36 @@ import * as threatDisplayStyles from "../../styles/threatimages";
 import Button from '@material-ui/core/Button'
 import {searchButton} from "../../styles/button";
 import * as radioStyles from "../../styles/searchRadio";
-import * as searchError from "../../styles/searchError";
-import { Field, reduxForm } from "redux-form";
+import {  reduxForm } from "redux-form";
 import {  Redirect } from "react-router-dom";
-import { Popover, PopoverHeader, PopoverBody } from 'reactstrap';
-import * as threatDetails from "./Threats";
 
-import io from "socket.io-client";
 import backendURL from "../../backendUrl";
 
 class SearchThreats extends Component {
 
     constructor(props){
         super(props); 
-       if(this.props.allThreats.length == 0)
-             this.props.threats();
-       this.state ={
-        redirectVar :null,
-    } 
+
+        if(sessionStorage.getItem("user") == null || sessionStorage.getItem("user") == "null")
+        {
+            this.state = {
+                 redirectVar :  <Redirect to= "/signin"/>
+            }
+        }
+        else{
+            this.state = {
+                redirectVar :  null
+            }
+            if(this.props.allThreats.length == 0)
+               this.props.threats();
+     
+        }
+
+             
+       
          this.search = this.search.bind(this);
     }
-    componentDidMount(){
 
-          var socket = io(backendURL);
-          socket.on('update', function (update)
-          {
-                console.log('recvd ' + update.link );
-          });
-    }
     
     renderField(field) {
      
@@ -58,12 +60,11 @@ class SearchThreats extends Component {
         var checked;
         if(e.target.dateRadio.checked)
             checked = "date";
-        else if(e.target.cityRadio.checked)
-            checked = "city";
+        else if(e.target.cameraRadio.checked)
+            checked = "camera_id";
         else if(e.target.locationRadio.checked)
             checked = "location";
-        else if(e.target.severityRadio.checked)
-            checked = "severity";
+   
         else if(e.target.certaintyRadio.checked)
             checked = "certainty";
         else
@@ -83,16 +84,9 @@ class SearchThreats extends Component {
 
     }
     render() {
-        console.log(this.props.displayThreats);
   
     var threatsDisplay=[] ;
-    /*var threatsDisplay =  this.props.allThreats.map((threat) => (
-                
-            <td>
-              <img src ={threat} style={threatDisplayStyles.threatImage}></img>
-            </td> 
-         
-         )) ;*/
+
          
          for(var i = 0; i<this.props.displayThreats.length; i++)
             {
@@ -103,6 +97,10 @@ class SearchThreats extends Component {
                 threatsDisplay.push(<div style={threatDisplayStyles.threatDetails}>
                     <table>
                     <tr>
+                        <td><b>Camera</b></td>
+                        <td style={threatDisplayStyles.threatDetailsPadding}>{this.props.displayThreats[index].camera_id}</td>
+                    </tr>
+                    <tr>
                         <td><b>Date</b></td>
                         <td style={threatDisplayStyles.threatDetailsPadding}>{this.props.displayThreats[index].date/*threatDetails.threatDetails.threats[i].date*/}</td>
                     </tr>
@@ -110,14 +108,8 @@ class SearchThreats extends Component {
                         <td><b>Location</b></td>
                         <td style={threatDisplayStyles.threatDetailsPadding}>{this.props.displayThreats[index].location}</td>
                     </tr>
-                    <tr>
-                        <td><b>City</b></td>
-                        <td style={threatDisplayStyles.threatDetailsPadding}>{this.props.displayThreats[index].city}</td>
-                    </tr>
-                    <tr>
-                        <td><b>Severity</b></td>
-                        <td style={threatDisplayStyles.threatDetailsPadding}>{this.props.displayThreats[index].severity}</td>
-                    </tr>
+                   
+                   
                     <tr>
                         <td><b>Certainty</b></td>
                         <td style={threatDisplayStyles.threatDetailsPadding}>{this.props.displayThreats[index].certainty}</td>
@@ -137,7 +129,7 @@ class SearchThreats extends Component {
                     <table >
                         <tr>
                             <td>
-                                <input placeholder="Search by date, city, location, severity or certainty of threat"
+                                <input placeholder="Search by camera ID, date, location or certainty of threat"
                                        name="searchQuery"
                                        style= {inputField.searchInput}
                                        type = "text"
@@ -145,18 +137,19 @@ class SearchThreats extends Component {
                                 />
                            </td>
                            <td>
-                           <Button style={searchButton} type= "reset" variant="contained" onClick={() => this.props.resetSearch()}>Clear</Button>
+                           <Button style={searchButton} type= "submit" variant="contained" >Search</Button>
                          
                            </td>
                             <td>
-                                <Button  style={searchButton} type="submit"  variant="contained" >Search</Button>
+                                <Button  style={searchButton} type="reset"  variant="contained" onClick={() => this.props.resetSearch()} >Clear</Button>
                             </td>
                         </tr>
                         <tr >
-                                <label style={radioStyles.radioLabel} ><input type="radio" name="searchRadio" id="dateRadio" style={radioStyles.searchRadio}></input>Date</label>
-                                <label style={radioStyles.radioLabel} ><input type="radio" name="searchRadio" id="cityRadio"  style={radioStyles.radioMargin}></input>City</label>
+                                <label style={radioStyles.radioLabel} ><input type="radio" name="searchRadio" id="cameraRadio" style={radioStyles.searchRadio}></input>Camera</label>
+
+                                <label style={radioStyles.radioLabel} ><input type="radio" name="searchRadio" id="dateRadio" style={radioStyles.radioMargin}></input>Date</label>
                                 <label style={radioStyles.radioLabel} ><input type="radio" name="searchRadio" id="locationRadio"  style={radioStyles.radioMargin}></input>Location</label>
-                                <label style={radioStyles.radioLabel} ><input type="radio" name="searchRadio" id="severityRadio"  style={radioStyles.radioMargin}></input>Severity</label> 
+
                                 <label style={radioStyles.radioLabel}><input type="radio" name="searchRadio" id="certaintyRadio" style={radioStyles.radioMargin}></input>Certainty</label>  
                         </tr>
                         
@@ -193,14 +186,16 @@ const mapStateToProps = state =>{
 const mapDispatchStateToProps = dispatch => {
     return {
         threats : () => {
-            axios.get(backendURL + '/all-threats').then(response=>{
-                console.log(response.data);
-              // const threatIds = response.data;
-              //  axios.post(backendURL + '/threat-details', response.data).then(result=>{
-              //          console.log(result);
-               // })
-                dispatch({type: "threats",payload : response.data})
-            }) 
+          
+                var threatsData = [];
+               
+                    axios.get(backendURL + '/threat-details').then(result=>{
+                     
+                        threatsData = result.data;
+                        dispatch({type: "threats",payload : threatsData})
+                    })
+                  
+            
         },
 
         threatsummary : (id) => {
@@ -217,10 +212,7 @@ const mapDispatchStateToProps = dispatch => {
         searchError :(type) =>{
             dispatch ({type : "searchError", payload : type})
         },
-        updateel : () => {
-            
-            dispatch({type: "updateel",payload : 0})
-        }
+       
     
         
     }
@@ -229,7 +221,6 @@ const mapDispatchStateToProps = dispatch => {
 }
 
 export default reduxForm({
-    // validate,
      form: "SignupForm",
  })(connect(mapStateToProps,mapDispatchStateToProps)(SearchThreats));  
  

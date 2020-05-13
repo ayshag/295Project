@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import { Field, reduxForm } from "redux-form";
-import { connect } from "react-redux";
 import '../../App.css';
 
 import Button from '@material-ui/core/Button'
@@ -13,7 +12,6 @@ import * as authLeft from "../../styles/authLeft";
 import LiveIcon from '@material-ui/icons/Videocam';
 import HistoryIcon from '@material-ui/icons/MissedVideoCall';
 import SummaryIcon from '@material-ui/icons/ArtTrack';
-import AnalyticsIcon from '@material-ui/icons/BarChart';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
@@ -51,7 +49,6 @@ class SignUp extends Component {
    }
     signup = (e) => {
         e.preventDefault();
-        console.log(e.target);
         const data = {
             "fname" : e.target[0].value,
             "lname" : e.target[1].value,
@@ -61,9 +58,11 @@ class SignUp extends Component {
             "password" : e.target[5].value,
         }
         axios.post(backendURL + "/signup", data).then(response => {
-            console.log(response);
             if(response.data.message === "created")
+            {
+                sessionStorage.setItem("user", data.email);
                 this.setState({redirectVar : <Redirect to="/live-surveillance"/>});
+            }
             else if(response.data.message === "preexisting")
                 this.setState({message : "Account with this email already exists. Please try again."})
         })
@@ -74,7 +73,6 @@ class SignUp extends Component {
             case 0 : return <LiveIcon style={authLeft.icon}/> ; 
             case 1 : return <HistoryIcon style={authLeft.icon}/>;
             case 2 : return <SummaryIcon style={authLeft.icon} />;
-            case 3 : return <AnalyticsIcon style = {authLeft.icon} />;
         }
     }
     render() {
@@ -83,10 +81,7 @@ class SignUp extends Component {
 
             <div>
                 {this.state.redirectVar}
-               {/*    <div>
-                    <div style={logo}>REAL TIME VIDEO ANALYTICS</div>
-                    <div style={logo}>FOR THREAT DETECTION</div>
-                  </div> */}
+            
                   <table>
                       <tr>
                           <td>
@@ -97,10 +92,10 @@ class SignUp extends Component {
                                     <div style={authLeft.logo}>for Threat Detection</div> 
                                   </div>
                                   
-                                  <p style={authLeft.intro}>Displays live surveillance, summary of <br></br> detected threats and threat analytics</p>
+                                  <p style={authLeft.intro}>Displays live surveillance, past surveillance <br></br> videos and summary of detected threats</p>
                             
                     <List>
-              {['View Live Surveillance Feed', 'View Surveillance History', 'View Detected Threat Details', 'View Threat Analytics Based on Time, Location and Severity' ].map((text, index) => (
+              {['View Live Surveillance Feed', 'View Surveillance History', 'View Detected Threat Details' ].map((text, index) => (
                 <ListItem style={authLeft.item}  key={text} >
                   <ListItemIcon>{this.displayIcon(index)}</ListItemIcon>
                   {text}
@@ -128,7 +123,6 @@ class SignUp extends Component {
                                 /></td>                                
                               <td> 
                                <Field
-                                   // style={inputField}
                                     placeholder="Last Name"
                                     name="lastname"
                                     style={inputField.shortRightInput}
@@ -138,7 +132,6 @@ class SignUp extends Component {
                                </td>
                                </tr></table>
                                <select
-                                    //style={inputField}
                                     
                                     name="organization"
                                     style={inputField.selectInput}
@@ -146,7 +139,6 @@ class SignUp extends Component {
                                 ><option value="SJPD">San Jose Police Department</option>
                                  <option value="SJSU UPD">SJSU University Police Department</option></select>
                                 <Field
-                                    //style={inputField}
                                     placeholder="Mobile Number"
                                     name="number"
                                     style={inputField.longInput}
@@ -155,7 +147,6 @@ class SignUp extends Component {
                                                                    
                                 />
                                 <Field
-                                    //style={inputField}
                                     placeholder="Email"
                                     name="email"
                                     style={inputField.longInput}
@@ -165,7 +156,6 @@ class SignUp extends Component {
                                 />
                                
                                 <Field
-                                     //style={inputField}
                                     placeholder="Password"
                                     name="password"
                                     style={inputField.longInput}
@@ -173,14 +163,13 @@ class SignUp extends Component {
                                     component={this.renderField}
                                 />
                                  <Field
-                                 // style={inputField}
                                     placeholder="Confirm Password"
                                     name="confirm"
                                     style={inputField.longInput}
                                     type = "password"
                                     component={this.renderField}
                                 />
-                                <Button  style={button} type="submit" fullWidth /* color="primary" */ variant="contained"/*()=>this.setState({redirectVar : <Redirect to="/live-surveillance"/>})}*/>Sign Up</Button>
+                                <Button  style={button} type="submit" fullWidth variant="contained">Sign Up</Button>
                                 <p style={errorStyles}>{this.state.message}</p>
                                 Already Have an Account?  <Link to={'/signin'} >Sign In</Link>
                             </form>
@@ -197,27 +186,7 @@ class SignUp extends Component {
 
 
 
-const mapStateToProps = state =>{
-   
-    return {
-        authFlag : state.signupReducer.authFlag,
-        username : state.signupReducer.username,
-        password : state.signupReducer.password
-      //  login_status : state.reducer.login_status,
-       // type : state.reducer.type  
-     }
-}
 
-const mapDispatchStateToProps = dispatch => {
-    return {
-        signup : (values) => {
-                    dispatch({type: "signup",payload : values})
-            
-        }
-    }
-}
 export default reduxForm({
-   // validate,
-    form: "SignupForm",
-    reducer: "signupReducer"
-})(connect(mapStateToProps,mapDispatchStateToProps)(SignUp));  
+    form: "SignupForm"
+})(SignUp);  
