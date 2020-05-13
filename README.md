@@ -1,1 +1,1 @@
-# 295Project
+# CMPE-295 Project - Real Time Video Analytics for Threat Detection
